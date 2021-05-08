@@ -1,6 +1,3 @@
-from math import floor
-
-
 def fib(n, k):
     s = [0, 1]
     if n == 2:

@@ -64,28 +64,23 @@ rna_codon_table = {"UUU": "F",
                    "GGG": "G"
                    }
 
+unique_aa = set(rna_codon_table.values())
 
-def rna_to_dna(rna):
-    aa = ""
-    codon = ""
-    start = False
-    for nuc in rna:
-        if len(codon) < 2:
-            codon += nuc
-        else:
-            if len(codon) == 2:
-                codon += nuc
-            if rna_codon_table[codon] == "Stop":
-                break
-            if start == True:
-                aa += rna_codon_table[codon]
-            if codon == "AUG" and start == False:
-                aa += rna_codon_table[codon]
-                start = True
-            codon = ""
-    return (aa)
+reverse_rna_codon_table = dict.fromkeys(unique_aa, 0)
 
+for v in rna_codon_table.values():
+    reverse_rna_codon_table[v] += 1
 
-if __name__ == "__main__":
-    rna = input().strip()
-    print(rna_to_dna(rna))
+print(reverse_rna_codon_table)
+
+protein_string = input().strip()
+
+tn = 1
+
+for aa in protein_string:
+    tn *= reverse_rna_codon_table[aa]
+    tn %= 1000000
+
+tn *= 3
+tn %= 1000000
+print(tn)

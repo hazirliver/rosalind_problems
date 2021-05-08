@@ -1,4 +1,4 @@
-rna_codon_table = {"UUU": "F",
+RNA_CODON_TABLE = {"UUU": "F",
                    "CUU": "L",
                    "AUU": "I",
                    "GUU": "V",
@@ -63,9 +63,34 @@ rna_codon_table = {"UUU": "F",
                    "AGG": "R",
                    "GGG": "G"
                    }
+DNA_COMPLEMENT_TABLE = {"A": "T",
+                        "C": "G",
+                        "G": "C",
+                        "T": "A"}
+RNA_COMPLEMENT_TALBE = {"A": "U",
+                        "C": "G",
+                        "G": "C",
+                        "T": "A"}
 
 
-def rna_to_dna(rna):
+def reverse_complement(dna: str):
+    rev_compl = ""
+    dna = dna.upper()
+    for nuc in reversed(dna):
+        rev_compl += DNA_COMPLEMENT_TABLE[nuc]
+    return (rev_compl)
+
+
+def dna_to_rna(dna):
+    # rev_coml = reverse_complement(dna)
+    # rna = ""
+    # for nuc in rev_coml:
+    #     rna += RNA_COMPLEMENT_TALBE[nuc]
+    rna = dna.replace("T", "U")
+    return (rna)
+
+
+def rna_to_prot(rna: str):
     aa = ""
     codon = ""
     start = False
@@ -75,17 +100,41 @@ def rna_to_dna(rna):
         else:
             if len(codon) == 2:
                 codon += nuc
-            if rna_codon_table[codon] == "Stop":
-                break
+            if RNA_CODON_TABLE[codon] == "Stop":
+                return (aa)
             if start == True:
-                aa += rna_codon_table[codon]
+                aa += RNA_CODON_TABLE[codon]
             if codon == "AUG" and start == False:
-                aa += rna_codon_table[codon]
+                aa += RNA_CODON_TABLE[codon]
                 start = True
             codon = ""
     return (aa)
 
 
+def read_fasta(file):
+    dna_strings = {}
+    with open(file, "r") as fasta:
+        for line in fasta:
+            if line.startswith(">"):
+                if gene != "":
+                    dna_strings[id] = gene
+                id = line.strip()[1:]
+                gene = ""
+            if not line.startswith(">"):
+                gene += line.strip()
+        dna_strings[id] = gene
+    return (dna_strings)
+
+
+def find_motif(dna: str, motif: str):
+    locs = []
+    ml = len(motif)
+    for i in range(len(dna)):
+        if dna[i] == motif[0]:
+            if i + ml < len(dna) and dna[i: i + ml] == motif:
+                locs.append(i)
+    return (locs)
+
+
 if __name__ == "__main__":
-    rna = input().strip()
-    print(rna_to_dna(rna))
+    print("it's library with some useful functions")
