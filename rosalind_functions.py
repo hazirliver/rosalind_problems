@@ -12,7 +12,7 @@ RNA_CODON_TABLE = {"UUU": "F",
                    "GUA": "V",
                    "UUG": "L",
                    "CUG": "L",
-                   "AUG": "M",
+                   "AUG": "M",  # Start codon
                    "GUG": "V",
                    "UCU": "S",
                    "CCU": "P",
@@ -82,10 +82,6 @@ def reverse_complement(dna: str):
 
 
 def dna_to_rna(dna):
-    # rev_coml = reverse_complement(dna)
-    # rna = ""
-    # for nuc in rev_coml:
-    #     rna += RNA_COMPLEMENT_TALBE[nuc]
     rna = dna.replace("T", "U")
     return (rna)
 
@@ -113,6 +109,7 @@ def rna_to_prot(rna: str):
 
 def read_fasta(file):
     dna_strings = {}
+    gene = ""
     with open(file, "r") as fasta:
         for line in fasta:
             if line.startswith(">"):
