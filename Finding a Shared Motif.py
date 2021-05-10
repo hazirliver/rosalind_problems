@@ -70,27 +70,23 @@ def get_lc_substring_seq(a, b):
 
 
 ### Поиск наибольшей общей ПОДСТРОКИ из N строк
-def ngrams_dict(s):
+def ngrams(s):
     ngrams = [s[i: j] for i in range(len(s))
               for j in range(i + 2, len(s) + 1)]
-    ngrams_dict = dict.fromkeys(ngrams, 0)
-    return (ngrams_dict)
+    return (sorted(set(ngrams), key=len, reverse=True))
 
 
-def long_substr(data: dict):
-    ngrams_to_check = ngrams_dict(data[0])
-    ls = ""
-    ls_len = 0
+def long_substr(data: list):
+    sorted_data = sorted(data, key=len, reverse=True)
+    shortest = sorted_data[-1]
+    other_data = sorted_data[:-1]
+    ngrams_to_check = ngrams(shortest)
 
     for ngram in ngrams_to_check:
-        for seq in data[1:]:
-            if ngram in seq:
-                ngrams_to_check[ngram] += 1
-                if ngrams_to_check[ngram] > ls_len:
-                    ls_len = ngrams_to_check[ngram]
-                    ls = ngram
+        if all([ngram in seq for seq in other_data]):
+            return (ngram)
 
-    return (ls)
+    return (None)
 
 
 seqs_dict = read_fasta("multifasta.fasta")
