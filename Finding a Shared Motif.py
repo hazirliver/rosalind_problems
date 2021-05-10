@@ -2,73 +2,98 @@
 ### Сначала учимся искать длину LCS в случае 2 последовательностей
 ### Потом определеим сами эти подпоследовательности
 import numpy as np
+
 from rosalind_functions import read_fasta
-from itertools import combinations
 
 
-def fill_lcs_mat(a, b):
-    lcs_mat = np.zeros((len(a) + 1, len(b) + 1))
+### Поиск наибольшей общей ПОДПОСЛЕДОВАТЕЛЬНОСТИ
+def fill_lc_subsequence_mat(a, b):
+    lc_subseqnce_mat = np.zeros((len(a) + 1, len(b) + 1))
     for i in range(1, len(a) + 1):
         for j in range(1, len(b) + 1):
             if a[i - 1] == b[j - 1]:
-                lcs_mat[i][j] = 1 + lcs_mat[i - 1][j - 1]
+                lc_subseqnce_mat[i][j] = 1 + lc_subseqnce_mat[i - 1][j - 1]
             else:
-                lcs_mat[i][j] = max(lcs_mat[i - 1][j], lcs_mat[i][j - 1])
-    return (lcs_mat)
+                lc_subseqnce_mat[i][j] = max(lc_subseqnce_mat[i - 1][j], lc_subseqnce_mat[i][j - 1])
+    return (lc_subseqnce_mat)
 
 
-def get_lcs_seq(a, b):
-    lcs_mat = fill_lcs_mat(a, b)
+def get_lc_subsequence_seq(a, b):
+    lc_subsequence_mat = fill_lc_subsequence_mat(a, b)
 
-    lcs_seq = ""
+    lc_subsequence_seq = ""
     i = len(a)
     j = len(b)
     while i > 0 and j > 0:
         if a[i - 1] == b[j - 1]:
-            lcs_seq += a[i - 1]
+            lc_subsequence_seq += a[i - 1]
             i -= 1
             j -= 1
         else:
-            if lcs_mat[i][j - 1] >= lcs_mat[i - 1][j]:
+            if lc_subsequence_mat[i][j - 1] >= lc_subsequence_mat[i - 1][j]:
                 i = i
                 j -= 1
             else:
                 i -= 1
                 j = j
-    return (lcs_seq[::-1])
+    return (lc_subsequence_seq[::-1])
 
 
-def get_lcs_seq_from_dict(seqs_dict, keys):
-    key1 = keys[0]
-    key2 = keys[1]
-    return (get_lcs_seq(seqs_dict[key1], seqs_dict[key2]))
+### Поиск наибольшей общей ПОДСТРОКИ
+
+def fill_lc_substring_mat(a, b):
+    lc_substring_mat = np.zeros((len(a) + 1, len(b) + 1))
+    for i in range(1, len(a) + 1):
+        for j in range(1, len(b) + 1):
+            if a[i - 1] == b[j - 1]:
+                lc_substring_mat[i][j] = 1 + lc_substring_mat[i - 1][j - 1]
+            else:
+                lc_substring_mat[i][j] = 0
+    return (lc_substring_mat)
 
 
-# seqs_dict = read_fasta("multifasta.fasta")
-# print(seqs_dict)
-# seqs_combs = list(combinations(seqs_dict.keys(), 2))
-# print(seqs_combs)
+def get_lc_substring_seq(a, b):
+    lc_substring_mat = fill_lc_substring_mat(a, b)
 
-# tmp = []
+    lc_substring_seq = ""
 
-# for comb in seqs_combs:
-#     tmp.append(get_lcs_seq_from_dict(seqs_dict, comb))
+    ind_max = np.unravel_index(np.argmax(lc_substring_mat, axis=None), lc_substring_mat.shape)
+    i = ind_max[0]
+    j = ind_max[1]
 
-# tmp = map(get_lcs_seq_from_dict, seqs_dict, list(seqs_combs))
-# print(tmp)
-# print(list(tmp))
+    while lc_substring_mat[i][j] > 0:
+        lc_substring_seq += a[i - 1]
+        i -= 1
+        j -= 1
+
+    return (lc_substring_seq[::-1])
 
 
+### Поиск наибольшей общей ПОДСТРОКИ из N строк
+def ngrams_dict(s):
+    ngrams = [s[i: j] for i in range(len(s))
+              for j in range(i + 2, len(s) + 1)]
+    ngrams_dict = dict.fromkeys(ngrams, 0)
+    return (ngrams_dict)
 
 
-#
-a, b = input().split()
-lcs_mat = fill_lcs_mat(a, b)
+def long_substr(data: dict):
+    ngrams_to_check = ngrams_dict(data[0])
+    ls = ""
+    ls_len = 0
 
-print(lcs_mat)
-print(get_lcs_seq(a, b))
+    for ngram in ngrams_to_check:
+        for seq in data[1:]:
+            if ngram in seq:
+                ngrams_to_check[ngram] += 1
+                if ngrams_to_check[ngram] > ls_len:
+                    ls_len = ngrams_to_check[ngram]
+                    ls = ngram
 
-# abcdede bedcadb
-# bedcadb abcdede
-# HABRAHABR HARBOUR
-# HABRAHABR HARBOBR
+    return (ls)
+
+
+seqs_dict = read_fasta("multifasta.fasta")
+seqs_combs = list(seqs_dict.values())
+
+print(long_substr(seqs_combs))
