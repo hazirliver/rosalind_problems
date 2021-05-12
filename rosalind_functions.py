@@ -1,3 +1,5 @@
+import regex
+
 RNA_CODON_TABLE = {"UUU": "F",
                    "CUU": "L",
                    "AUU": "I",
@@ -123,13 +125,19 @@ def read_fasta(file):
     return (dna_strings)
 
 
-def find_motif(dna: str, motif: str):
+def find_motif(dna: str, motif: str, re: bool) -> list:
     locs = []
-    ml = len(motif)
-    for i in range(len(dna)):
-        if dna[i] == motif[0]:
-            if i + ml < len(dna) and dna[i: i + ml] == motif:
-                locs.append(i)
+    # Случай, когда мотив задан просто сиквенсом, а не регулярным выражением
+    if re == False:
+        ml = len(motif)
+        for i in range(len(dna)):
+            if dna[i] == motif[0]:
+                if i + ml < len(dna) and dna[i: i + ml] == motif:
+                    locs.append(i)
+    else:
+        motif = regex.compile(motif)
+        for match in regex.finditer(motif, dna, overlapped=True):
+            locs.append(match.start())
     return (locs)
 
 
